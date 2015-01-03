@@ -39,11 +39,11 @@ class AllNewsManager: NSObject {
     
     var worker :NetWorker?
     
-    var LocalCache :FetchController? {
-        didSet {
-            LocalCache = FetchController()
-        }
-    }
+    //var LocalCache :FetchController? {
+    //    didSet {
+    //        LocalCache = FetchController()
+    //    }
+    //}
     
     func GetSomeDayNews(index :Int)->ZhihuTodayNews?{
         if index < 0{

@@ -91,16 +91,16 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     // MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        //return self.fetchedResultsController.sections?.count ?? 0
-        return 1
+        return self.fetchedResultsController.sections?.count ?? 0
+        //return 1
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        //let sectionInfo = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo
-        //return sectionInfo.numberOfObjects
+        let sectionInfo = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo
+        return sectionInfo.numberOfObjects
         
-        var count :Int = self.newsManager?.GetSomeDayNews(0)?.TotalAllNewsToday() as Int!
-        return count 
+        //var count :Int = self.newsManager?.GetSomeDayNews(0)?.TotalAllNewsToday() as Int!
+        //return 0
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
