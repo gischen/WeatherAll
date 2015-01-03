@@ -12,19 +12,43 @@ import CoreData
 class MasterViewController: UITableViewController, NSFetchedResultsControllerDelegate {
 
     var managedObjectContext: NSManagedObjectContext? = nil
-
-
+    var newsManager: AllNewsManager? = nil
+    @IBOutlet var loadingIndicator : UIActivityIndicatorView! = nil
+    
     override func awakeFromNib() {
         super.awakeFromNib()
+    }
+    
+    override init(){
+        super.init()
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        super.init(coder :aDecoder)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "今日热闻"
+        //var cellnib = UINib(nibName: "MyCellD", bundle: nil)
+        //self.tableView?.registerNib(cellnib, forCellReuseIdentifier: "MyCell")
+        
+        self.loadingIndicator.startAnimating()
+
         // Do any additional setup after loading the view, typically from a nib.
         self.navigationItem.leftBarButtonItem = self.editButtonItem()
 
         let addButton = UIBarButtonItem(barButtonSystemItem: .Add, target: self, action: "insertNewObject:")
+        
+        
         self.navigationItem.rightBarButtonItem = addButton
+        
+
+        while (self.newsManager?.worker?.wokState != true){
+        }
+        
+        self.loadingIndicator.hidden = true
+        self.loadingIndicator.stopAnimating()
     }
 
     override func didReceiveMemoryWarning() {
@@ -33,6 +57,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     }
 
     func insertNewObject(sender: AnyObject) {
+        
         let context = self.fetchedResultsController.managedObjectContext
         let entity = self.fetchedResultsController.fetchRequest.entity!
         let newManagedObject = NSEntityDescription.insertNewObjectForEntityForName(entity.name!, inManagedObjectContext: context) as NSManagedObject
@@ -57,7 +82,8 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         if segue.identifier == "showDetail" {
             if let indexPath = self.tableView.indexPathForSelectedRow() {
             let object = self.fetchedResultsController.objectAtIndexPath(indexPath) as NSManagedObject
-            (segue.destinationViewController as DetailViewController).detailItem = object
+            (segue.destinationViewController as DetailViewController).TargetUrl = newsManager?.GetSomeDayNews(0)?.GetNewsContentUrl(indexPath.item)
+            (segue.destinationViewController as DetailViewController).titleItem = newsManager?.GetSomeDayNews(0)?.GetNewsTitle(indexPath.item)
             }
         }
     }
@@ -65,15 +91,20 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     // MARK: - Table View
 
     override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        return self.fetchedResultsController.sections?.count ?? 0
+        //return self.fetchedResultsController.sections?.count ?? 0
+        return 1
     }
 
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        let sectionInfo = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo
-        return sectionInfo.numberOfObjects
+        //let sectionInfo = self.fetchedResultsController.sections![section] as NSFetchedResultsSectionInfo
+        //return sectionInfo.numberOfObjects
+        
+        var count :Int = self.newsManager?.GetSomeDayNews(0)?.TotalAllNewsToday() as Int!
+        return count 
     }
 
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
         let cell = tableView.dequeueReusableCellWithIdentifier("Cell", forIndexPath: indexPath) as UITableViewCell
         self.configureCell(cell, atIndexPath: indexPath)
         return cell
@@ -85,7 +116,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
     }
 
     override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
+        if editingStyle == UITableViewCellEditingStyle.Delete {
             let context = self.fetchedResultsController.managedObjectContext
             context.deleteObject(self.fetchedResultsController.objectAtIndexPath(indexPath) as NSManagedObject)
                 
@@ -93,7 +124,7 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
             if !context.save(&error) {
                 // Replace this implementation with code to handle the error appropriately.
                 // abort() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                //println("Unresolved error \(error), \(error.userInfo)")
+                println("Unresolved error \(error), \(error?.userInfo)")
                 abort()
             }
         }
@@ -101,7 +132,14 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     func configureCell(cell: UITableViewCell, atIndexPath indexPath: NSIndexPath) {
         let object = self.fetchedResultsController.objectAtIndexPath(indexPath) as NSManagedObject
-        cell.textLabel!.text = object.valueForKey("timeStamp")!.description
+        //cell.textLabel!.text = newsManager?.GetSomeDayNews(0)?.GetNewsTitle(0)
+        //println(newsManager?.GetSomeDayNews(0)?.story?[0].dictionaryValue["image"])
+        //println(newsManager?.GetSomeDayNews(0)?.story?[0].dictionaryValue["images"]?[0])
+        //cell.imageView?.image = UIImage(contentsOfFile: newsManager?.GetSomeDayNews(0)?.GetNewsImageUrl(0) as String!)
+        cell.textLabel!.text = newsManager?.GetSomeDayNews(0)?.GetNewsTitle(indexPath.item)
+        println(indexPath.item)
+        cell.imageView?.image = UIImage(contentsOfFile: "nm.jpg")
+        
     }
 
     // MARK: - Fetched results controller
@@ -110,7 +148,6 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
         if _fetchedResultsController != nil {
             return _fetchedResultsController!
         }
-        
         let fetchRequest = NSFetchRequest()
         // Edit the entity name as appropriate.
         let entity = NSEntityDescription.entityForName("Event", inManagedObjectContext: self.managedObjectContext!)
@@ -149,10 +186,10 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
         switch type {
-            case .Insert:
-                self.tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
-            case .Delete:
-                self.tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: .Fade)
+            case NSFetchedResultsChangeType.Insert:
+                self.tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: UITableViewRowAnimation.Automatic)
+            case NSFetchedResultsChangeType.Delete:
+                self.tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: UITableViewRowAnimation.Automatic)
             default:
                 return
         }
@@ -160,15 +197,15 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
-            case .Insert:
-                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
-            case .Delete:
-                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
-            case .Update:
+            case NSFetchedResultsChangeType.Insert:
+                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
+            case NSFetchedResultsChangeType.Delete:
+                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
+            case NSFetchedResultsChangeType.Update:
                 self.configureCell(tableView.cellForRowAtIndexPath(indexPath!)!, atIndexPath: indexPath!)
-            case .Move:
-                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: .Fade)
-                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: .Fade)
+            case NSFetchedResultsChangeType.Move:
+                tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
+                tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: UITableViewRowAnimation.Automatic)
             default:
                 return
         }
@@ -176,16 +213,9 @@ class MasterViewController: UITableViewController, NSFetchedResultsControllerDel
 
     func controllerDidChangeContent(controller: NSFetchedResultsController) {
         self.tableView.endUpdates()
+        //self.tableView.reloadData()
     }
-
-    /*
-     // Implementing the above methods to update the table view in response to individual changes may have performance implications if a large number of changes are made simultaneously. If this proves to be an issue, you can instead just implement controllerDidChangeContent: which notifies the delegate that all section and object changes have been processed.
-     
-     func controllerDidChangeContent(controller: NSFetchedResultsController) {
-         // In the simplest, most efficient, case, reload the table view.
-         self.tableView.reloadData()
-     }
-     */
+    
 
 }
 
