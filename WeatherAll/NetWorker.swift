@@ -42,8 +42,6 @@ class NetWorker:NSObject{
                 (error :NSError!,operation :HTTPResponse?) in println(operation?.statusCode)
                 self.wokState = false
                 println("fetchstatu show : \(self.wokState) ")
-                
-                
             }
         )
     }

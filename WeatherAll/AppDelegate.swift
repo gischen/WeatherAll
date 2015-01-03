@@ -27,9 +27,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         controller.newsManager = newsManager
         newsManager?.InsertSomeDayNews(Zhihu_news_Url)
         //////////////////////
-        
-        corehelper = CoreDataOperation()
-        controller.managedObjectContext = corehelper?.managedObjectContext
+
         return true
     }
 

@@ -29,7 +29,6 @@ let Share_url_fix = "http://daily.zhihu.com/story/"
 class AllNewsManager: NSObject {
     
     override init(){
-        println("AllItemManager init")
         itemList = Array<ZhihuTodayNews>()
         worker = NetWorker()
         //LocalCache = FetchController()
@@ -182,7 +181,6 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
     
     func GetNewsContentUrl(index :Int)->String?{
         var url = Share_url_fix + _GetNewsContentUrl(index)!
-        println(url)
         return url
     }
 }
