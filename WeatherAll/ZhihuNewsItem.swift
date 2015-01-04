@@ -71,6 +71,8 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
     var TodayNewsJson: JSON = JSON.nullJSON
     
     
+    var imageData:Dictionary<Int,NSData>?
+    
     override init(){
         data = NSData()
     }
@@ -92,6 +94,22 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
         self.date = TodayNewsJson["date"].stringValue
         self.story = TodayNewsJson["stories"].arrayValue
         self.topstory = TodayNewsJson["top_stories"].arrayValue
+        
+        for var index = 0;index < self.TotalAllNewsToday();index++
+        {
+            //添加异步线程获取图片
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+                for var i = 0; i < 5; i++
+                {
+                    println("hello dispatch_get_global_queue")
+                }
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    println("hello dispatch_get_main_queue")
+                })
+            })
+        }
         
         self.SetCellRaw(0)
         

@@ -92,7 +92,14 @@ class MasterViewController: UITableViewController{
         //println(newsManager?.GetSomeDayNews(0)?.story?[0].dictionaryValue["images"]?[0])
         //cell.imageView?.image = UIImage(contentsOfFile: newsManager?.GetSomeDayNews(0)?.GetNewsImageUrl(0) as String!)
         cell.textLabel!.text = newsManager?.GetSomeDayNews(0)?.GetNewsTitle(indexPath.item)
-        cell.imageView?.image = UIImage(contentsOfFile: "nm.jpg")
+        
+        let img :UIImage = UIImage(named :"nm.jpg")!
+        cell.imageView?.image = img
+        
+        
+        println(cell.textLabel?.text?.debugDescription)
+        println(cell.imageView?.image?.debugDescription)
+        println(img.debugDescription)
         cell.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         
     }

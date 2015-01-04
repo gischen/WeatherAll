@@ -49,7 +49,7 @@
                                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="nm.jpg" id="vGb-oW-t8S">
+                                        <imageView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" image="nm.jpg" highlightedImage="nm.jpg" highlighted="YES" id="vGb-oW-t8S">
                                             <autoresizingMask key="autoresizingMask"/>
                                         </imageView>
                                     </subviews>
