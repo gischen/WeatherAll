@@ -54,16 +54,13 @@ class MyLabel: UILabel {
 }
 
 class DetailViewController: UIViewController {
-
     
     required init(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         //self.editing = false
-        
     }
 
     @IBOutlet weak var detailDescriptionLabel: UIWebView!
-    
 
     var idItem: String? {
         didSet{

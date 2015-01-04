@@ -36,8 +36,10 @@ class MasterViewController: UITableViewController{
         self.loadingIndicator.startAnimating()
 
         while (self.newsManager?.worker?.wokState != true){
+            sleep(1)
         }
-        
+        self.newsManager?.GetInsertNewsImage(0)
+        sleep(10)
         self.loadingIndicator.hidden = true
         self.loadingIndicator.stopAnimating()
     }
@@ -93,13 +95,13 @@ class MasterViewController: UITableViewController{
         //cell.imageView?.image = UIImage(contentsOfFile: newsManager?.GetSomeDayNews(0)?.GetNewsImageUrl(0) as String!)
         cell.textLabel!.text = newsManager?.GetSomeDayNews(0)?.GetNewsTitle(indexPath.item)
         
-        let img :UIImage = UIImage(named :"nm.jpg")!
-        cell.imageView?.image = img
+        //let img :UIImage = UIImage(named :"nm.jpg")!
+        cell.imageView?.image = self.newsManager?.GetSomeDayNews(0)?.GetImageByIndex(indexPath.item)
         
         
         println(cell.textLabel?.text?.debugDescription)
         println(cell.imageView?.image?.debugDescription)
-        println(img.debugDescription)
+        //println(img.debugDescription)
         cell.imageView?.contentMode = UIViewContentMode.ScaleAspectFit
         
     }

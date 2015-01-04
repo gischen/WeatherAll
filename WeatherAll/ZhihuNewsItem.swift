@@ -59,6 +59,14 @@ class AllNewsManager: NSObject {
         worker?.RequestUrl = urlpath
         worker?.GetObject(Todaynews)
         self.itemList.append(Todaynews)
+        
+    }
+    
+    func GetInsertNewsImage(whitchday:Int){
+        for var index = 0;index < self.itemList[whitchday].TotalAllNewsToday();index++
+        {
+            worker?.GetImageObject(self.itemList[whitchday], index: index)
+        }
     }
 
 }
@@ -71,19 +79,29 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
     var TodayNewsJson: JSON = JSON.nullJSON
     
     
-    var imageData:Dictionary<Int,NSData>?
+    var imageData:Dictionary<Int,UIImage>?
+    
+    
+    
+    func InsertNewsImages(key :Int,data:UIImage){
+        
+        self.imageData?.updateValue(data, forKey: key)
+    }
     
     override init(){
         data = NSData()
+        imageData = Dictionary<Int,UIImage>()
     }
     
     init(msg :String){
         println(msg)
         data = NSData()
+        imageData = Dictionary<Int,UIImage>()
     }
     
     required init(nilLiteral: ()) {
         //super.init(NSNull())
+        // this is a nil convert init function
     }
     
     func GetTodayNews(resp:HTTPResponse){
@@ -95,24 +113,32 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
         self.story = TodayNewsJson["stories"].arrayValue
         self.topstory = TodayNewsJson["top_stories"].arrayValue
         
-        for var index = 0;index < self.TotalAllNewsToday();index++
-        {
-            //添加异步线程获取图片
-            
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
-                for var i = 0; i < 5; i++
-                {
-                    println("hello dispatch_get_global_queue")
-                }
-                
-                dispatch_async(dispatch_get_main_queue(), {
-                    println("hello dispatch_get_main_queue")
-                })
-            })
-        }
-        
         self.SetCellRaw(0)
         
+    }
+    
+    func GetTodayNewsImage(resp:HTTPResponse,index:Int){
+        var imgdata = resp.responseObject as? NSData
+        
+        var img = UIImage(data: imgdata!)
+        self.InsertNewsImages(index, data: img!)
+        
+    }
+    
+    
+    func GetNewsPicture(resp :HTTPResponse){
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), {
+            for var index = 0;index < self.TotalAllNewsToday();index++
+            {
+                //添加异步线程设置获取图片
+                var tempData:NSData = NSData()
+                var worker :NetWorker = NetWorker()
+                
+            }
+            dispatch_async(dispatch_get_main_queue(), {
+                println("hello dispatch_get_main_queue")
+            })
+        })
     }
     
     func TotalTopNewsToday()->Int{
@@ -152,6 +178,11 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
 
     }
     
+    func GetImageByIndex(index:Int)->UIImage{
+        var value = self.imageData?[index]
+        return value!
+    }
+    
     func GetThemenameContentUrl(index :Int)->String?{
         var url = self.story?[index].dictionaryValue["theme_name"]
         return url?.stringValue
@@ -168,7 +199,8 @@ class ZhihuTodayNews:NSObject,NilLiteralConvertible{
     }
     
     func GetNewsImageUrl(index :Int)->String{
-        var url = self.story?[index].dictionaryValue["image"]?[0].stringValue
+        var url = self.story?[index].dictionaryValue["images"]?[0].stringValue
+        
         return url!
     }
     

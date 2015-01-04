@@ -40,8 +40,22 @@ class NetWorker:NSObject{
             },
             failure: {
                 (error :NSError!,operation :HTTPResponse?) in println(operation?.statusCode)
+                println("failure \(self.RequestUrl)")
                 self.wokState = false
                 println("fetchstatu show : \(self.wokState) ")
+            }
+        )
+    }
+    
+    
+    func GetImageObject(itemList :ZhihuTodayNews ,index :Int){
+        var Manager_temp = HTTPTask()
+        Manager_temp.GET(itemList.GetNewsImageUrl(index), parameters: nil,
+            success: {
+                (operation :HTTPResponse!) in (itemList.GetTodayNewsImage(operation,index: index))
+            },
+            failure: {
+                (error :NSError!,operation :HTTPResponse?) in println(operation?.statusCode)
             }
         )
     }
